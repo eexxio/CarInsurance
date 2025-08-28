@@ -30,4 +30,18 @@ public class CarsController(CarService service) : ControllerBase
             return NotFound();
         }
     }
+
+    [HttpPost("cars/{carId:long}/claims")]
+    public async Task<ActionResult<ClaimDto>> CreateClaim(long carId, [FromBody] CreateClaimRequest request)
+    {
+        try
+        {
+            var claim = await _service.CreateClaimAsync(carId, request);
+            return CreatedAtAction(nameof(CreateClaim), new { carId, id = claim.Id }, claim);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
+    }
 }
