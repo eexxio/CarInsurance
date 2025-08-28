@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDbContext<AppDbContext>(opt =>
+    builder.Services.AddDbContext<AppDbContext>(opt =>
 {
     opt.UseSqlite(builder.Configuration.GetConnectionString("Default"));
 });
@@ -17,9 +17,9 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Ensure DB and seed
-using (var scope = app.Services.CreateScope())
+if (app.Environment.EnvironmentName != "Testing")
 {
+    using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     db.Database.EnsureCreated();
     SeedData.EnsureSeeded(db);
@@ -35,3 +35,5 @@ app.UseHttpsRedirection();
 app.MapControllers();
 
 app.Run();
+
+public partial class Program { }

@@ -9,6 +9,18 @@ public class CarService(AppDbContext db)
 {
     private readonly AppDbContext _db = db;
 
+    private static void ValidateDateRange(DateOnly date, string parameterName)
+    {
+        if (date < new DateOnly(1900, 1, 1) || date > new DateOnly(2200, 12, 31))
+            throw new ArgumentException("Date must be between 1900-01-01 and 2200-12-31.", parameterName);
+    }
+
+    private static void ValidateCarId(long carId, string parameterName)
+    {
+        if (carId <= 0)
+            throw new ArgumentException("Car ID must be a positive number.", parameterName);
+    }
+
     public async Task<List<CarDto>> ListCarsAsync()
     {
         return await _db.Cars.Include(c => c.Owner)
@@ -19,6 +31,9 @@ public class CarService(AppDbContext db)
 
     public async Task<bool> IsInsuranceValidAsync(long carId, DateOnly date)
     {
+        ValidateCarId(carId, nameof(carId));
+        ValidateDateRange(date, nameof(date));
+
         var carExists = await _db.Cars.AnyAsync(c => c.Id == carId);
         if (!carExists) throw new KeyNotFoundException($"Car {carId} not found");
 
@@ -31,6 +46,9 @@ public class CarService(AppDbContext db)
 
     public async Task<ClaimDto> CreateClaimAsync(long carId, CreateClaimRequest request)
     {
+        ValidateCarId(carId, nameof(carId));
+        ValidateDateRange(request.ClaimDate, nameof(request.ClaimDate));
+
         var carExists = await _db.Cars.AnyAsync(c => c.Id == carId);
         if (!carExists) throw new KeyNotFoundException($"Car {carId} not found");
 
@@ -50,6 +68,8 @@ public class CarService(AppDbContext db)
 
     public async Task<CarHistoryResponse> GetCarHistoryAsync(long carId)
     {
+        ValidateCarId(carId, nameof(carId));
+
         var carExists = await _db.Cars.AnyAsync(c => c.Id == carId);
         if (!carExists) throw new KeyNotFoundException($"Car {carId} not found");
 
