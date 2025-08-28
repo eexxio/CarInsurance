@@ -4,12 +4,22 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-    builder.Services.AddDbContext<AppDbContext>(opt =>
+// Only configure SQLite for non-testing environments
+if (builder.Environment.EnvironmentName != "Testing")
 {
-    opt.UseSqlite(builder.Configuration.GetConnectionString("Default"));
-});
+    builder.Services.AddDbContext<AppDbContext>(opt =>
+    {
+        opt.UseSqlite(builder.Configuration.GetConnectionString("Default"));
+    });
+}
 
 builder.Services.AddScoped<CarService>();
+
+// Only register the background service in non-testing environments
+if (builder.Environment.EnvironmentName != "Testing")
+{
+    builder.Services.AddHostedService<PolicyExpirationService>();
+}
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
