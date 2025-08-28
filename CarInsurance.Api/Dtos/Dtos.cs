@@ -4,3 +4,7 @@ public record CarDto(long Id, string Vin, string? Make, string? Model, int Year,
 public record InsuranceValidityResponse(long CarId, string Date, bool Valid);
 public record CreateClaimRequest(DateOnly ClaimDate, string Description, decimal Amount);
 public record ClaimDto(long Id, long CarId, DateOnly ClaimDate, string Description, decimal Amount);
+
+public record CarHistoryResponse(long CarId, List<PolicyPeriodWithClaimsDto> PolicyPeriods);
+public record PolicyPeriodWithClaimsDto(long PolicyId, string? Provider, DateOnly StartDate, DateOnly EndDate, List<ClaimSummaryDto> Claims);
+public record ClaimSummaryDto(long ClaimId, DateOnly ClaimDate, string Description, decimal Amount);
